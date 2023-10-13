@@ -93,7 +93,9 @@ contract Token {
                     },
                 ),
                 // docs:end:storage_minters_init
+                // docs:start:storage_balances_init
                 balances: BalancesMap::new(context, 3),
+                // docs:end:storage_balances_init
                 total_supply: PublicState::new(
                     context,
                     4,
@@ -326,7 +328,9 @@ contract Token {
 
         let amount = SafeU120::new(amount);
         storage.balances.at(from).sub(amount);
+        // docs:start:increase_private_balance
         storage.balances.at(to).add(amount);
+        // docs:end:increase_private_balance
 
         1
     }
