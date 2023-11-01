@@ -598,6 +598,7 @@ __metadata:
     "@types/lodash.upperfirst": ^4.3.7
     "@types/node": ^18.7.23
     "@types/pako": ^2.0.0
+    "@types/semver": ^7.5.4
     base64-js: ^1.5.1
     commander: ^9.0.0
     fs-extra: ^11.1.1
@@ -609,6 +610,7 @@ __metadata:
     lodash.upperfirst: ^4.3.1
     memfs: ^4.6.0
     pako: ^2.1.0
+    semver: ^7.5.4
     toml: ^3.0.0
     ts-jest: ^29.1.0
     ts-node: ^10.9.1
@@ -5047,6 +5049,13 @@ __metadata:
   version: 7.5.2
   resolution: "@types/semver@npm:7.5.2"
   checksum: 743aa8a2b58e20b329c19bd2459152cb049d12fafab7279b90ac11e0f268c97efbcb606ea0c681cca03f79015381b40d9b1244349b354270bec3f939ed49f6e9
+  languageName: node
+  linkType: hard
+
+"@types/semver@npm:^7.5.4":
+  version: 7.5.4
+  resolution: "@types/semver@npm:7.5.4"
+  checksum: 120c0189f6fec5f2d12d0d71ac8a4cfa952dc17fa3d842e8afddb82bba8828a4052f8799c1653e2b47ae1977435f38e8985658fde971905ce5afb8e23ee97ecf
   languageName: node
   linkType: hard
 

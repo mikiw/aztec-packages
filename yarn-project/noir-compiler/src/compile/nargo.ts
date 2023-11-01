@@ -4,8 +4,9 @@ import { execSync } from 'child_process';
 import { readFileSync, readdirSync, statSync, unlinkSync } from 'fs';
 import { emptyDirSync } from 'fs-extra';
 import path from 'path';
+import { parse } from 'semver';
 
-import { NoirCommit, NoirTag } from '../index.js';
+import { noirWasmVersion } from '../noir-version.js';
 import { NoirCompilationArtifacts, NoirCompiledContract, NoirDebugMetadata } from '../noir_artifact.js';
 
 /** Compilation options */
@@ -35,20 +36,37 @@ export class NargoContractCompiler {
     const stdio = this.opts.quiet ? 'ignore' : 'inherit';
     const nargoBin = this.opts.nargoBin ?? 'nargo';
     const version = execSync(`${nargoBin} --version`, { cwd: this.projectPath, stdio: 'pipe' }).toString();
-    this.checkNargoBinVersion(version.replace('\n', ''));
+    this.checkNargoBinVersion(version);
     emptyDirSync(this.getTargetFolder());
     execSync(`${nargoBin} compile --no-backend`, { cwd: this.projectPath, stdio });
     return Promise.resolve(this.collectArtifacts());
   }
 
   private checkNargoBinVersion(version: string) {
-    if (!version.includes(NoirCommit)) {
-      this.log(
-        `Warning: the nargo version installed locally does not match the expected one. This may cause issues when compiling or deploying contracts. Consider updating your nargo or aztec-cli installation. \n- Expected: ${NoirTag} (git version hash: ${NoirCommit})\n- Found: ${version}`,
-      );
-    } else if (!this.opts.quiet) {
-      this.log(`Using ${version}`);
+    const outputLines = version.split('\n');
+    const nargoVersionLine = outputLines.find(line => line.indexOf('nargo') !== -1);
+    const nargoVer = nargoVersionLine?.match(/(\d+\.\d+\.\d+)/)?.[1];
+
+    if (!nargoVer) {
+      this.log('Warning: nargo version could not be determined.');
+      return;
     }
+
+    const noirWasmSemver = parse(noirWasmVersion);
+
+    if (noirWasmSemver?.compareMain(nargoVer) === 0) {
+      if (!this.opts.quiet) {
+        this.log(`Using Nargo v${nargoVer}`);
+      }
+      return;
+    }
+
+    this.log(`\
+Warning: the nargo version installed locally does not match the expected one. This may cause issues when compiling or deploying contracts. Consider updating your nargo or aztec-cli installation.
+  - Expected: ${noirWasmSemver?.major}.${noirWasmSemver?.minor}.${noirWasmSemver?.patch} (git version hash: ${
+      noirWasmSemver?.prerelease[0]
+    })
+  - Found: ${outputLines.join(' ')}`);
   }
 
   private collectArtifacts(): NoirCompilationArtifacts[] {
